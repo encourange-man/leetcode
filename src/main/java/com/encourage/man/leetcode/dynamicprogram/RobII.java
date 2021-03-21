@@ -7,6 +7,6 @@ package com.encourage.man.leetcode.dynamicprogram;
 public class RobII {
 
     public int rob(int[] nums) {
-
+        return 0;
     }
 }
