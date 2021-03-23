@@ -23,6 +23,12 @@ import java.util.List;
  */
 public class PalindromePartitioning {
 
+    public static void main(String[] args) {
+        PalindromePartitioning palindromePartitioning = new PalindromePartitioning();
+        List<List<String>> aab = palindromePartitioning.partition("aab");
+
+    }
+
     /**
      * 方案1： 回溯算法
      *
@@ -50,9 +56,9 @@ public class PalindromePartitioning {
         for(int j = index; j < s.length(); j++ ) {
             //分割子串s[index, j]，判断是否是回文串，如果是添加，
             String substring = s.substring(index, j + 1);
-            if(isHuiWen(substring, index, j)) {
+            if(isHuiWen(s, index, j)) {
                 preChoice.add(substring);
-                backTrack(s, preChoice, index +1);
+                backTrack(s, preChoice, j + 1);
                 preChoice.remove(preChoice.size() - 1);
             }
         }
