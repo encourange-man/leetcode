@@ -1,5 +1,38 @@
 # leetcode
 
+## Tips
+### 摩尔投票算法
+给定一个数组nums，找出其中出现次数大于 [n/2]的元素，[LeetCode题目：多数元素](https://leetcode.cn/problems/majority-element/)
+```java
+/**
+ * 思路：
+ *  如果我们把众数记为+1，把其他数记为−1，将它们全部加起来，显然和大于 0，从结果本身我们可以看出众数比其他数多
+ *  
+ * 算法：
+ *  我们定义了两个变量 candidate 和 count ， candidate 存储当前候选元素， count 存储当前元素出现的次数。 
+ *  遍历列表中的每个元素，如果 count 为0，则将当前元素设置为候选元素。
+ *  然后，如果当前元素等于候选元素，则将计数器加1，否则将计数器减1。如果计数器变为0，则更新候选元素为当前元素。 
+ *  最终， candidate 变量将包含出现次数超过一半的元素，并作为结果返回
+ *  
+ * 
+ */
+class Solution {
+    public int majorityElement(int[] nums) {
+        int count = 0;
+        Integer candidate = null;
+
+        for (int num : nums) {
+            if (count == 0) {
+                candidate = num;
+            }
+            count += (num == candidate) ? 1 : -1;
+        }
+
+        return candidate;
+    }
+}
+```
+
 ## 树
 序号 | 题目  | 思路
 ---|--- | ---
