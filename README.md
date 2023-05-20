@@ -244,6 +244,19 @@ for 状态1 in 状态1的所有取值：
 
 ```
 
+序号 | 题目  | 思路
+---|--- | ---
+509 | 斐波那契数 | 如何通过「备忘录」 或者「dp table」的方法优化递归树
+322|凑零钱 | 如何流程化的确定「状态转移方程」，只要通过状态转移方程写出暴力递归树，剩下的也就是优化递归树，消除重叠子问题
+120 | 三角形最小路径和 |
+64 | 最小路径和 | 0-1背包的衍生题目
+53 | 最大子序和 |
+5 | 回文子串 |  （中心扩展法）枚举每一个可能的回文中心，然后两指针向两边扩展，出现不相同时，停止扩展  <br> 长度为n的字符串，会有2n-1组回文中心
+132 | 分割回文串II |
+70 | 爬楼梯 | 空间复杂度优化方向：使用滚动窗口 O(1)
+198 | 打家劫舍 | 动态规划 + 滚动数组 （整理笔记）
+213 | 打家劫舍II | TODO
+
 ### 509.斐波那契数列-（体会重叠子问题）
 斐波那契数 （通常用 F(n) 表示）形成的序列称为 斐波那契数列 。该数列由 0 和 1 开始，后面的每一项数字都是前面两项数字的和。也就是：
 
@@ -261,7 +274,9 @@ class Solution {
         return fib(n - 1) + fib(n - 2);
     }
 }
-
+```
+> 带备忘录的递归解法(自顶向下)：
+```java
 /***
  * 带备忘录的递归解法：
  *  递归版本中有大量的重复计算（重叠子问题），可以造一个「备忘录」，将每次子问题的结果存储到备忘录中，
@@ -290,7 +305,9 @@ class Solution {
       return memo[n];
   }
 }
-
+```
+> 带dp table的迭代解法（自底向上）：
+```java
 /**
  * 带dp table的迭代（递推）解法：自底向上的解法
  *  f(n) = f(n-1) + f(n-2)
@@ -339,21 +356,135 @@ class Solution {
 输入：coins = [1], amount = 0
 输出：0
 ```
+```text
+首先，这个问题是不是动态规划，是否具有「最优子结构」。要符合「最优子结构」，子问题之间必须独立，假设要从面值1，2，5
+的硬币中凑出amount=11的最少硬币数，如果知道amount=10,9,6 的最少硬币（子问题），只需要把子问题的答案+1
+（再选一枚1，2，5的硬币），求个最值，这就是原文题的答案。因为硬币的数量是没有限制的，所有子问题之间是独立的。
 
+既然是动态规划，如何思考出正确的状态转移方程？
+1.确定base case。当amount=0时算法返回0，因为不需要任何硬币就已经凑出目标金额
 
+2.确定「状态」，也就是原文题和子问题中变化的变量。由于硬币的数量是无限的，硬币的面额也是给定的，所有只有
+amount是不断的变化的。
 
+3.确定「选择」，也就是导致「状态」产生变化的行为。目标金额为什么变化，因为选择了不同的硬币，所以硬币的面额
+就是你的选择。
 
+4.明确「dp函数」的定义。自顶向下的解法，会有一个递归的dp函数，一般来说函数的参数就是状态转移过程中会变化的值，
+函数的返回值就是我们要计算的值。所以就本题来说，状态只有一个，即「目标金额」。所以可定义dp函数：dp(n)表示，
+输入一个目标金额n，返回凑出目标金额 n 所需要的最少硬币数量
+```
+```java
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        //最终结果是dp(amount)
+        return dp(coins, amount);
+    }
 
-序号 | 题目  | 思路
----|--- | ---
-120 | 三角形最小路径和 | 
-64 | 最小路径和 | 0-1背包的衍生题目
-53 | 最大子序和 | 
-5 | 回文子串 |  （中心扩展法）枚举每一个可能的回文中心，然后两指针向两边扩展，出现不相同时，停止扩展  <br> 长度为n的字符串，会有2n-1组回文中心
-132 | 分割回文串II | 
-70 | 爬楼梯 | 空间复杂度优化方向：使用滚动窗口 O(1)
-198 | 打家劫舍 | 动态规划 + 滚动数组 （整理笔记）
-213 | 打家劫舍II | TODO
+    int dp(int[] coins, int n) {
+        //base case
+        if(n == 0) return 0;
+        if(n < 0) return -1;
+
+        //记录最优结果
+        int res = Integer.MAX_VALUE;
+        for(int coin: coins){
+            //做选择后，计算子问题的结果
+            int subProblem = dp(coins, n - coin);
+            //子问题无解，则跳过
+            if(subProblem == -1) continue;
+
+            //在子问题中选择最优解
+            res = Math.min(res, subProblem + 1);
+        }
+        return res == Integer.MAX_VALUE ? -1 : res;
+    }
+}
+```
+> 带备忘录的递归：
+```java
+/***
+ * 消除重叠子问题，带备忘录的递归
+ */
+class Solution {
+    //备忘录
+    int[] memo;
+    public int coinChange(int[] coins, int amount) {
+        memo = new int[amount + 1];
+        //备忘录初始化为一个不会被取到的特殊值，代表还未被计算
+        Arrays.fill(memo, -666);
+        return dp(coins, amount);
+    }
+
+    int dp(int[] coins, int n) {
+        //base case
+        if(n == 0) return 0;
+        if(n < 0) return -1;
+        //备忘录，防止重复计算
+        if(memo[n] != -666) {
+            return memo[n];
+        }
+
+        //记录最优结果
+        int res = Integer.MAX_VALUE;
+        for(int coin: coins){
+            //做选择后，计算子问题的结果
+            int subProblem =  dp(coins, n - coin);
+            //子问题无解，则跳过
+            if(subProblem == -1) continue;
+
+            //在子问题中选择最优解
+            res = Math.min(res, subProblem + 1);
+        }
+
+        //把计算结果存入备忘录中
+        memo[n] = (res == Integer.MAX_VALUE) ? -1 : res;
+        return memo[n];
+    }
+}
+```
+> dp 数组的迭代解法：
+```java
+/**
+ * dp数组的定义和上面dp函数类似，也是把「状态」即目标金额作为变量。
+ * 不过dp函数体现在函数参数，而dp数组体现在数组索。
+ * dp数组的定义：
+ *      当目标金额为 i 时， 至少需要dp[i]枚硬币凑出。
+ *
+ *          0, n==0
+ * dp(n) =  -1, n < 0
+ *          min{dp(n - coin) + 1}
+ *
+ * 为什么dp数组要初始化为amount + 1 ？
+ *  因为凑成amount金额的硬币最多只能等于amount，最后求的是最小值，所以 amount + 1 就相当于正无穷了
+ *
+ */
+class Solution {
+    
+    public int coinChange(int[] coins, int amount) {
+        //初始化dp数组,
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, amount + 1);
+
+        //base case
+       dp[0] = 0;
+
+       //遍历所有目标金额
+       for(int i = 0; i < dp.length; i++) {
+
+          for (int coin : coins) {
+              //子问题无解，跳过
+              if(i - coin < 0) {
+                continue;
+              }
+              dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+          }
+       }
+       return (dp[amount] == amount + 1) ? -1 : dp[amount];
+    }
+}
+```
+
 
 ### 买卖股票的最佳时机
 给定一个数组 prices ，它的第 i 个元素 prices[i] 表示一支给定股票第 i 天的价格。
