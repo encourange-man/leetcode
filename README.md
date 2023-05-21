@@ -500,7 +500,87 @@ class Solution {
 输入：grid = [[1,2,3],[4,5,6]]
 输出：12
 ```
+> 带备忘录的递归操作（自顶向下）：
+```java
+/***
+ * dp[i][j] 表示从(0,0)到(i,j)最小路径和
+ * 
+ *              0, i<0 || j<0
+ *              dp(grid, 0, j -1) + grid[i][j]， i=0 && j>0
+ * dp[i][j] =   dp(grid, i - 1, j) + grid[i][j] ，i>0 && j==0
+ *              Math.min(dp(grid, i-1, j), dp(grid, i, j-1)) + grid[i][j], i >0 && j>0
+ */
+class Solution {
+    int[][] memo;
+    public int minPathSum(int[][] grid) {
+        //初始化备忘录
+        memo = new int[grid.length][grid[0].length];
+        for(int i =0; i<grid.length; i++) {
+            Arrays.fill(memo[i], Integer.MAX_VALUE);
+        }
 
+        return dp(grid, grid.length-1,grid[0].length-1);
+    }
+
+    int dp(int[][] grid, int i, int j) {
+        //base case
+        if(i < 0 || j < 0) {
+            return 0;
+        }
+        //备忘录中字问题如果已经计算过，直接返回
+        if(memo[i][j] != Integer.MAX_VALUE) {
+            return memo[i][j];
+        }
+
+        int res;
+        if(i == 0 && j >= 0) {
+            res =  dp(grid, 0, j -1) + grid[i][j];
+        } else if(j == 0 && i >= 0) {
+            res =  dp(grid, i - 1, j) + grid[i][j];
+        } else{
+            res =  Math.min(dp(grid, i-1, j), dp(grid, i, j-1)) + grid[i][j];
+        }
+
+        //子问题结果保存到备忘录中
+        memo[i][j] = res;
+        return res;
+    }
+}
+```
+> 带dp table的遍历（自底向上）：
+
+```java
+class Solution {
+
+    public int minPathSum(int[][] grid) {
+        //dp table
+        int[][] dp = new int[grid.length][grid[0].length];
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (i == 0 && j == 0) {
+                    dp[i][j] = grid[0][0];
+                }
+
+                if (i > 0 && j == 0) {
+                    dp[i][j] = dp[i - 1][j] + grid[i][j];
+                }
+
+                if (i == 0 && j > 0) {
+                    dp[i][j] = dp[i][j - 1] + grid[i][j];
+                }
+
+                if (i > 0 && j > 0) {
+                    dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+                }
+            }
+        }
+
+        return dp[grid.length - 1][grid[0].length - 1];
+    }
+
+}
+```
 
 ### 120.三角形最小路径和
 给定一个三角形 triangle ，找出自顶向下的最小路径和。
