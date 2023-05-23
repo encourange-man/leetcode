@@ -647,7 +647,48 @@ class Solution {
 输入：triangle = [[-10]]
 输出：-10
 ```
+```java
+/**
+ * 状态定义：
+ *  dp(i,j)，表示从(0,0)到（i,j）的最小路径和
+ * 
+ * 状态转移方程：
+ *              dp[i-1][0] + triangle[i][j]，当且仅当 j==0
+ * dp(i,j) =    dp[i-1][j-1] + triangle[i][j]，当且仅当 j==triangle[i-1].length
+ *              Math.min(dp(i-1,j), dp(i-1, j-1)) + triangle[i][j], 当且仅当 j>0 && j < triangle[i-1].length 
+ */
+class Solution {
+    public int minimumTotal(List<List<Integer>> triangle) {
+        //初始化dp table
+        int[][] dp = new int[triangle.size()][triangle.get(triangle.size() - 1).size()];
+        for (int i = 0; i < dp.length; i++) {
+            Arrays.fill(dp[i], 0);
+        }
 
+        //base case
+        dp[0][0] = triangle.get(0).get(0);
+        for (int i = 1; i < triangle.size(); i++) {
+            for (int j = 0; j < triangle.get(i).size(); j++) {
+                if (j == 0) {
+                    dp[i][j] = dp[i - 1][0] + triangle.get(i).get(j);
+                } else if (j == triangle.get(i - 1).size()) {
+                    dp[i][j] = dp[i - 1][j - 1] + triangle.get(i).get(j);
+                } else {
+                    dp[i][j] = Math.min(dp[i - 1][j], dp[i - 1][j - 1]) + triangle.get(i).get(j);
+                }
+            }
+        }
+
+        //dp table 最有一行的最小值，就是本题要求的最短路径和
+        int res = dp[triangle.size() - 1][0];
+        for (int j = 0; j < dp[triangle.size() - 1].length; j++) {
+            res = Math.min(res, dp[triangle.size() - 1][j]);
+        }
+
+        return res;
+    }
+}
+```
 
 ### 买卖股票的最佳时机
 给定一个数组 prices ，它的第 i 个元素 prices[i] 表示一支给定股票第 i 天的价格。
