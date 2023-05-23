@@ -56,6 +56,51 @@ class Solution {
 }
 ```
 
+## 数组/字符串
+### 14.最长公共前缀
+编写一个函数来查找字符串数组中的最长公共前缀。
+
+如果不存在公共前缀，返回空字符串 ""。
+
+示例 1：
+
+输入：strs = ["flower","flow","flight"]
+输出："fl"
+示例 2：
+
+输入：strs = ["dog","racecar","car"]
+输出：""
+解释：输入不存在公共前缀。
+```java
+/***
+ * 纵向扫描时，从前往后遍历所有字符串的每一列，比较相同列上的字符是否相同，
+ * 如果相同则继续对下一列进行比较，如果不相同则当前列不再属于公共前缀，
+ * 当前列之前的部分为最长公共前缀。
+ * 
+ * 时间复杂度：O(mn)，
+ * m 是字符串数组中的字符串的平均长度，
+ * n 是字符串的数量。最坏情况下，字符串数组中的每个字符串的每个字符都会被比较一次。
+ */
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if (strs == null || strs.length == 0) {
+            return "";
+        }
+
+        for (int i = 0; i < strs[0].length(); i++) {
+            char c = strs[0].charAt(i);
+            for (int j = 1; j < strs.length; j++) {
+                if (strs[j].charAt(i) != c || i == strs[j].length()) {
+                    return strs[0].substring(0, i);
+                }
+            }
+        }
+        return strs[0];
+    }
+}
+```
+
+
 ## 树
 序号 | 题目  | 思路
 ---|--- | ---
@@ -596,7 +641,7 @@ class Solution {
   3 4
  6 5 7
 4 1 8 3
-自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+自顶向下的最小路径和为11（即，2+ 3 + 5 + 1 = 11）。
 
 示例2：
 输入：triangle = [[-10]]
